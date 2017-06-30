@@ -3,7 +3,7 @@
 
 benchmark(){
 
-  data=$1
+  data=$2
   memory=`pwd`
 
   #If the SMEM index doesn't exist, make it
