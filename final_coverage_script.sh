@@ -25,7 +25,7 @@ run_simulations(){
   echo "threshold before set_of_simulations "$threshold
 
   #perform simulations at each read number
-  read_number=( 250000 500000 1000000 2000000 4000000 8000000 16000000 )
+  read_number=( 250000 500000 1000000 2000000 4000000 8000000 )
   #read_number=(1000 2000 3000)
   for i in "${read_number[@]}";
   do
@@ -62,7 +62,7 @@ set_of_simulations() {
       #Perform the simulation
       bsub -n4 -R"span[hosts=1]" -c 99999 -G team_hemberg -q normal -o $TEAM/temp.logs/output.coverage_$num_cells'_'$read_number'_'$i'_'$j -e $TEAM/temp.logs/error.coverage_$num_cells'_'$read_number'_'$i'_'$j -R"select[mem>10000] rusage[mem=10000]" -M10000 simulate $raw_data_dir $read_number coverage_$num_cells'_'$read_number'_'$i'_'$j Simulation/confusion_matrices_dropouts/coverage_$num_cells"_"$read_number"_"$i
 
-      read_array=( 250000 500000 1000000 2000000 4000000 8000000 16000000 )
+      read_array=( 250000 500000 1000000 2000000 4000000 8000000 )
       for k in "${read_array[@]}";
       do
         for l in $(seq 1 10);
