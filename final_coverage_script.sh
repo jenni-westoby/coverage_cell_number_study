@@ -25,8 +25,8 @@ run_simulations(){
   echo "threshold before set_of_simulations "$threshold
 
   #perform simulations at each read number
-  #read_number=( 250000 500000 1000000 2000000 4000000 8000000 16000000 )
-  read_number=(1000 2000 3000)
+  read_number=( 250000 500000 1000000 2000000 4000000 8000000 16000000 )
+  #read_number=(1000 2000 3000)
   for i in "${read_number[@]}";
   do
     set_of_simulations $1 $num_cells $i $threshold
@@ -62,7 +62,7 @@ set_of_simulations() {
       #Perform the simulation
       bsub -n4 -R"span[hosts=1]" -c 99999 -G team_hemberg -q normal -o $TEAM/temp.logs/output.coverage_$num_cells'_'$read_number'_'$i'_'$j -e $TEAM/temp.logs/error.coverage_$num_cells'_'$read_number'_'$i'_'$j -R"select[mem>10000] rusage[mem=10000]" -M10000 simulate $raw_data_dir $read_number coverage_$num_cells'_'$read_number'_'$i'_'$j Simulation/confusion_matrices_dropouts/coverage_$num_cells"_"$read_number"_"$i
 
-      read_array=(1000 2000 3000)
+      read_array=( 250000 500000 1000000 2000000 4000000 8000000 16000000 )
       for k in "${read_array[@]}";
       do
         for l in $(seq 1 10);
@@ -71,39 +71,38 @@ set_of_simulations() {
           #check filenumbers in dirs and check no temp files present
           file_number=`ls Simulation/confusion_matrices_dropouts/coverage_$num_cells"_"$k"_"$l | wc -l | awk '{print $1}'`
           echo "file_number "$file_number
-          #if exceed threshold
+          #if equal threshold
           if [ "$file_number" -eq "$threshold" ];
           then
             #mkdir Simulation/confusion_matrices_dropouts/tmp_coverage_$num_cells"_"$k"_"$l
-            echo "file number greater than threshold"
+            echo "file number equal to threshold"
             dir="Simulation/confusion_matrices_dropouts/coverage_$num_cells"_"$k"_"$l"
-            #move all the completed files into a temporary directory
             for file in "$dir"/*
             do
               num_lines=`wc -l $file | awk '{print $1}'`
               echo "num_lines "$num_lines
               if [ "$num_lines" -ne 111799 ];
               then
-                echo "wrong number of lines in some files...exiting"
+                echo "wrong number of lines in some files... will not add files at this time"
                 continue 2
               fi
             done
 
-            #pause ongoing jobs (only normal - final_coverage_script.sh itself should be submitted as a long job). First sleep for 30 to give time for recently submitted jobs to appear in bjobs
-            sleep 60
-            ongoing_jobs=`bjobs | grep 'normal' | awk '{print $1}'`
-            echo "ongoing_jobs "$ongoing_jobs
-            echo "ongoing "$ongoing
-            if [ "$ongoing" == "true" ];
-            then
-              for job in $ongoing_jobs;
-              do
-                bstop $job
-                echo "job "$job
-              done
-              ongoing="false"
-              sleep 600
-            fi
+#             #pause ongoing jobs (only normal - final_coverage_script.sh itself should be submitted as a long job). First sleep for 30 to give time for recently submitted jobs to appear in bjobs
+#             sleep 60
+#             ongoing_jobs=`bjobs | grep 'normal' | awk '{print $1}'`
+#             echo "ongoing_jobs "$ongoing_jobs
+#             echo "ongoing "$ongoing
+#             if [ "$ongoing" == "true" ];
+#             then
+#               for job in $ongoing_jobs;
+#               do
+#                 bstop $job
+#                 echo "job "$job
+#               done
+#               ongoing="false"
+#               sleep 600
+#             fi
 
             #call a function to add up all files
             mkdir Simulation/tmp_dropouts
@@ -113,17 +112,17 @@ set_of_simulations() {
         done
       done
 
-      #if jobs were stopped, restart them
-      if [ "$ongoing" == "false" ];
-      then
-        for job in $ongoing_jobs;
-        do
-          bresume $job
-        done
+#       #if jobs were stopped, restart them
+#       if [ "$ongoing" == "false" ];
+#       then
+#         for job in $ongoing_jobs;
+#         do
+#           bresume $job
+#         done
 
-        #give jobs some time to actually run
-        sleep 300
-      fi
+#         #give jobs some time to actually run
+#         sleep 300
+#       fi
 
 
 

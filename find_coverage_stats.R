@@ -1,5 +1,7 @@
 library(hydroGOF)
 library(MESS)
+library(stats)
+library(Hmisc)
 
 #read input args and assign them to variables
 args <- commandArgs(trailingOnly = TRUE)
@@ -67,11 +69,17 @@ na_FPR<-is.na(FPR)
 FPR<-FPR[!NaN_TPR & !NaN_FPR & !na_TPR & !na_FPR]
 TPR<-TPR[!NaN_TPR & !NaN_FPR & !na_TPR & !na_FPR]
 
+########################################
 #Calculate area and pAUROC
-area<-auc(FPR,TPR,from=min(FPR), to=max(FPR))
-pAUROC<-(area/(max(FPR)-min(FPR))*100)
+#area<-auc(FPR,TPR,from=min(FPR), to=max(FPR))
+#pAUROC<-(area/(max(FPR)-min(FPR))*100)
+########################################
 
+#Find TPR at FPR=0.002
+TPR_score<-approxExtrap(FPR,TPR,xout=0.0023)$y
 
-output<-cbind(cell_number, read_coverage, simulation_num, cell_of_total, correlation(ground_truth, salmon), NRMSE(ground_truth,salmon), MSE(ground_truth, salmon), MSE_log(ground_truth, salmon), all_iso_confusion[1], all_iso_confusion[2], all_iso_confusion[3], all_iso_confusion[4],pAUROC)
+output<-cbind(cell_number, read_coverage, simulation_num, cell_of_total, correlation(ground_truth, salmon), NRMSE(ground_truth,salmon), MSE(ground_truth, salmon), MSE_log(ground_truth, salmon), all_iso_confusion[1], all_iso_confusion[2], all_iso_confusion[3], all_iso_confusion[4],TPR_score, min(FPR), max(FPR), median(FPR))
+#output<-cbind(cell_number, read_coverage, simulation_num, cell_of_total, t(TPR),t(FPR))
+
 filename<-paste("coverage",cell_number, read_coverage, simulation_num, cell_of_total, sep="_")
 write.table(output, file=filename)

@@ -63,6 +63,6 @@ def make_confusion(truth_file, salmon_file, outfile):
 
                 #write results out to file
                 with open(outfile, "a+") as f:
-                    f.write(key_truth + "," + str(confusion) + "\n")
+                    f.write(key_truth + "," + ",".join(map(str,confusion)) + "\n")
 
 make_confusion(truth_file,salmon_file,outfile)
