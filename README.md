@@ -8,7 +8,16 @@ Prerequisites:
 
 -reference genome gtf and fasta files. Note that if your data contains ERRCC spike-ins, you should concatenate the reference genome gtf file with the ERRCC gtf file, and concatenate the reference and ERRCC fastq files (see https://tools.thermofisher.com/content/sfs/manuals/cms_095048.txt)
 
--directory containing single cell RNA-seq data. This data should be demultiplexed, have any adaptors trimmed and should be in the format of gzipped fastq files.
+-directory containing single cell RNA-seq data. This data should be demultiplexed, have any adaptors trimmed and should be in the format of gzipped fastq files. This pipeline assumes your data is paired end and unstranded.
+
+Note: The pipeline assumes you have a directory full of the BLUEPRINT fastqs and the B lymphocytes contain a B in the file name. If this is not the case, you will need to edit line 161 of final_coverage_script.sh so it reads:
+
+```
+filename=`find . -name '*_1.fastq*' -o -name '*_1.fq*' | sort -R | tail -1`
+```
+
+This will randomly select a file to simulate from your directory of single cell RNA-seq data.
+
 
 To run the pipeline:
 
