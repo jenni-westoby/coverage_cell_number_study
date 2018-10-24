@@ -34,3 +34,15 @@ do
     fi
   done
 done
+
+mkdir Simulation/tmp
+cd Simulation/tmp_dropouts
+
+for i in *
+do
+grep -v "cell_number" $i > ../tmp/$i
+done
+
+cd ..
+rm -r tmp_dropouts
+mv tmp tmp_dropouts
